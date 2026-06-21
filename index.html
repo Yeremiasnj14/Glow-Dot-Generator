@@ -341,7 +341,7 @@
 function createGlowDots(canvas, config){
   const ctx = canvas.getContext('2d');
   let cfg = Object.assign({
-    shape:'star', density:26, size:48, points:4, depth:52, jitter:0,
+    shape:'star', density:15, size:20, points:4, depth:52, jitter:0,
     fill:'#5b8cff', grid:'#5b6472', fillA:1, gridA:1, bgA:1, glow:62, blur:22, spread:34, hue:0,
     anim:'glow', trigger:'hover', radius:200, duration:1100, softness:60,
     scale:1, bg:'#0a0b0f', idle:0.10
@@ -588,7 +588,7 @@ function createGlowDots(canvas, config){
    STUDIO — wires the panel to the engine + export
    ============================================================ */
 const DEFAULTS={
-  shape:'star', density:26, size:48, points:4, depth:52, jitter:0,
+  shape:'star', density:15, size:20, points:4, depth:52, jitter:0,
   fill:'#5b8cff', grid:'#5b6472', fillA:1, gridA:1, bgA:1, glow:62, blur:22, spread:34, hue:0,
   anim:'glow', trigger:'hover', radius:200, duration:1100, softness:60,
   scale:1, bg:'#0a0b0f', idle:0.10
