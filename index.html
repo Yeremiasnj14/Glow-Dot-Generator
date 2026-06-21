@@ -42,10 +42,20 @@
     -webkit-font-smoothing:antialiased;overflow:hidden;font-size:14px;
   }
   :focus-visible{outline:2px solid hsl(var(--ring));outline-offset:2px}
-  .app{display:grid;grid-template-columns:1fr 340px;height:100vh}
+  .app{display:grid;grid-template-columns:320px 1fr 340px;grid-template-areas:"left stage right";height:100vh}
+  .stage{grid-area:stage}
+  .leftpanel{grid-area:left;border-left:0;border-right:1px solid hsl(var(--border))}
+  .rightpanel{grid-area:right}
+  .leftbody{padding:16px;display:flex;flex-direction:column;gap:14px}
+  .brandhead{justify-content:flex-start;gap:10px;text-decoration:none;color:hsl(var(--foreground))}
+  .brandhead:hover{color:hsl(var(--foreground))}
+  .brandhead .logo{width:28px;height:28px;flex:0 0 auto;display:grid;place-items:center;color:hsl(var(--foreground))}
+  .brandhead .logo svg{width:26px;height:26px}
+  .brandtext{font-size:14px;font-weight:600;letter-spacing:-.01em}
   @media (max-width:860px){
-    .app{grid-template-columns:1fr;grid-template-rows:1fr auto}
-    .panel{max-height:46vh}
+    .app{grid-template-columns:1fr;grid-template-rows:1fr auto auto;grid-template-areas:"stage" "left" "right"}
+    .leftpanel{border-right:0;border-bottom:1px solid hsl(var(--border))}
+    .leftpanel,.rightpanel{max-height:40vh}
   }
 
   /* ---- stage ---- */
@@ -172,7 +182,58 @@
   .btn.primary:hover{background:hsl(var(--primary)/.9);color:hsl(var(--primary-foreground))}
   .btn.primary svg{opacity:1}
   .note{font-size:12px;color:hsl(var(--muted-foreground));line-height:1.5;margin-top:2px}
+  .maskrow{display:flex;align-items:center;gap:8px;flex:1}
+  .thumb{width:40px;height:40px;border-radius:calc(var(--radius) - 2px);border:1px solid hsl(var(--input));background:hsl(var(--muted)) center/cover no-repeat;flex:0 0 auto;display:grid;place-items:center;overflow:hidden}
+  .thumb span{font-size:10px;color:hsl(var(--muted-foreground))}
+  .maskbtn{width:auto;flex:1;padding:8px 10px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn:disabled:hover{background:transparent;color:hsl(var(--foreground))}
   .note b{color:hsl(var(--foreground));font-weight:600}
+
+  /* left panel — Source dropzone + larger controls (matches design) */
+  .srcrow{display:flex;flex-direction:column;gap:12px}
+  .srclabel{font-size:13px;font-weight:500;color:hsl(var(--muted-foreground))}
+  .srchead{position:relative;display:flex;align-items:center;gap:6px}
+  .info{display:inline-grid;place-items:center;width:16px;height:16px;flex:0 0 auto;border-radius:50%;
+    border:1px solid hsl(var(--border));color:hsl(var(--muted-foreground));font-family:var(--sans);
+    font-size:11px;font-weight:700;line-height:1;cursor:help;user-select:none;transition:color .13s,border-color .13s}
+  .info:hover{color:hsl(var(--foreground));border-color:hsl(var(--muted-foreground))}
+  .tip{position:absolute;left:0;top:calc(100% + 8px);z-index:60;width:100%;
+    padding:10px 12px;background:hsl(var(--background));color:hsl(var(--muted-foreground));
+    border:1px solid hsl(var(--border));border-radius:calc(var(--radius) - 2px);box-shadow:0 8px 24px rgb(0 0 0/.4);
+    font-size:12px;line-height:1.55;text-align:left;
+    opacity:0;visibility:hidden;transform:translateY(-4px);pointer-events:none;
+    transition:opacity .14s,transform .14s,visibility .14s}
+  .info:hover ~ .tip,.info:focus ~ .tip,.info:focus-visible ~ .tip{opacity:1;visibility:visible;transform:translateY(0)}
+  .tip b{color:hsl(var(--foreground));font-weight:600}
+  .dropzone{position:relative;border:1.5px dashed hsl(var(--border));border-radius:var(--radius);
+    min-height:190px;display:grid;place-items:center;padding:20px;text-align:center;cursor:pointer;
+    transition:border-color .15s,background .15s}
+  .dropzone:hover{border-color:hsl(var(--muted-foreground))}
+  .srcrow.drag .dropzone{border-color:hsl(var(--ring));background:hsl(var(--accent)/.45)}
+  .dz-empty{display:flex;flex-direction:column;align-items:center;gap:14px;pointer-events:none}
+  .dz-title{font-size:16px;font-weight:500;color:hsl(var(--foreground))}
+  .dz-or{font-size:13px;color:hsl(var(--muted-foreground))}
+  .dz-btn{pointer-events:auto;appearance:none;border:1px solid hsl(var(--input));background:transparent;
+    color:hsl(var(--foreground));font-family:var(--sans);font-size:14px;font-weight:500;
+    padding:10px 22px;border-radius:999px;cursor:pointer;transition:background .13s,border-color .13s}
+  .dz-btn:hover{background:hsl(var(--accent));border-color:hsl(var(--ring))}
+  /* loaded state: keep the box; show square thumb + Change + Trash inside it */
+  .srcloaded{display:none;align-items:center;gap:10px;width:100%}
+  .srcrow.has-image .dropzone{min-height:0;padding:12px;border-style:solid;display:block;cursor:default}
+  .srcrow.has-image .dz-empty{display:none}
+  .srcrow.has-image .srcloaded{display:flex}
+  .src-thumb{width:52px;height:52px;flex:0 0 auto;border-radius:calc(var(--radius) - 2px);overflow:hidden;
+    background:hsl(var(--muted));border:1px solid hsl(var(--border));cursor:pointer}
+  .src-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .src-change{flex:1;width:auto}
+  .src-trash{flex:0 0 auto;width:42px;height:42px;display:grid;place-items:center;border:1px solid hsl(var(--input));
+    background:transparent;color:hsl(var(--muted-foreground));border-radius:calc(var(--radius) - 2px);cursor:pointer;
+    transition:background .13s,color .13s,border-color .13s}
+  .src-trash:hover{background:rgb(239 68 68/.12);color:#ef4444;border-color:rgb(239 68 68/.45)}
+  .src-trash svg{width:17px;height:17px}
+  .srcrow.drag .src-thumb{outline:2px solid hsl(var(--ring));outline-offset:2px}
+  .leftpanel .gbody{padding:16px;gap:14px;display:flex;flex-direction:column}
   .export .gbody{gap:10px}
 
   /* toast = shadcn */
@@ -186,14 +247,75 @@
 </style>
 
 <div class="app">
+  <aside class="panel leftpanel">
+    <a class="phead brandhead" href="https://www.venice.inc/" target="_blank" rel="noopener">
+      <span class="logo" aria-hidden="true">
+        <!-- PLACEHOLDER LOGO — replace this <svg> with your Venice square logo -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="8" r="1.25" fill="currentColor" stroke="none"/><circle cx="15" cy="8" r="1.25" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.25" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.25" fill="currentColor" stroke="none"/><circle cx="9" cy="16" r="1.25" fill="currentColor" stroke="none"/><circle cx="15" cy="16" r="1.25" fill="currentColor" stroke="none"/></svg>
+      </span>
+      <span class="brandtext">Dot Generator</span>
+    </a>
+    <div class="gbody">
+      <div class="srcrow" id="maskSrcRow">
+        <div class="srchead">
+          <label class="srclabel">Source</label>
+          <span class="info" tabindex="0" role="img" aria-label="About Source">?</span>
+          <span class="tip" role="tooltip">Drop a PNG, JPG, or SVG — the grid takes on its shape. <b>Mask</b> clips the effect to the image; <b>Source</b> turns the image into a brightness map. Images are auto-downscaled to keep the embed lightweight.</span>
+        </div>
+        <input type="file" id="maskFile" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,.svg" hidden>
+        <div class="dropzone" id="maskDrop">
+          <div class="dz-empty">
+            <div class="dz-title">Drag &amp; drop an image</div>
+            <div class="dz-or">or</div>
+            <button class="dz-btn" id="maskUpload">Upload file</button>
+          </div>
+          <div class="srcloaded" id="maskLoaded">
+            <div class="src-thumb" id="maskThumb"><img id="maskImg" alt="Mask preview"></div>
+            <button class="btn src-change" id="maskChange">Change</button>
+            <button class="src-trash" id="maskRemove" title="Remove image" aria-label="Remove image">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+        <div class="row">
+          <label>Mask</label>
+          <div class="seg grid2" data-seg="maskToggle">
+            <button data-v="off">Off</button>
+            <button data-v="on">On</button>
+          </div>
+        </div>
+        <div class="row" data-maskon>
+          <label>Type</label>
+          <div class="seg grid2" data-seg="maskType">
+            <button data-v="mask">Mask</button>
+            <button data-v="source">Source</button>
+          </div>
+        </div>
+        <div class="row" data-maskon>
+          <label>Fit</label>
+          <div class="seg grid2" data-seg="maskFit">
+            <button data-v="cover">Cover</button>
+            <button data-v="contain">Contain</button>
+          </div>
+        </div>
+        <div class="row" data-maskon>
+          <label>Invert</label>
+          <div class="seg grid2" data-seg="maskInvert">
+            <button data-v="false">Off</button>
+            <button data-v="true">On</button>
+          </div>
+        </div>
+      </div>
+  </aside>
+
   <div class="stage">
-    <div class="brand">Dot&nbsp;Generator <span class="v">by Venice studio</span></div>
     <canvas id="scene"></canvas>
     <div class="hint" id="hint">Move across the grid to light it up</div>
     <div class="by">Canvas 2D · export-ready</div>
   </div>
 
-  <aside class="panel">
+  <aside class="panel rightpanel">
     <div class="phead">
       <h1>Settings</h1>
       <div class="phead-actions">
@@ -344,14 +466,16 @@ function createGlowDots(canvas, config){
     shape:'star', density:15, size:20, points:4, depth:52, jitter:0,
     fill:'#5b8cff', grid:'#5b6472', fillA:1, gridA:1, bgA:1, glow:62, blur:22, spread:34, hue:0,
     anim:'glow', trigger:'hover', radius:200, duration:1100, softness:60,
-    scale:1, bg:'#0a0b0f', idle:0.10
+    scale:1, bg:'#0a0b0f', idle:0.10,
+    maskMode:'off', maskFit:'cover', maskInvert:false, maskSrc:null
   }, config||{});
 
-  let W=0,H=0,dpr=1, raf=0, running=true;
+  let W=0,H=0,dpr=1, raf=0, running=true, settleUntil=0;
   let live={cells:[],cols:0,rows:0};
   let ripples=[];
   const mouse={x:-9999,y:-9999,inside:false};
   let lastSpawn=0;
+  let maskData=null, maskSrcLoaded=null;
 
   function hexToRgb(h){h=(h||'#000000').replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
   function rgbToHsl(r,g,b){r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);let h=0,s=0,l=(mx+mn)/2;if(mx!==mn){const d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);if(mx===r)h=(g-b)/d+(g<b?6:0);else if(mx===g)h=(b-r)/d+2;else h=(r-g)/d+4;h*=60;}return[h,s*100,l*100];}
@@ -396,6 +520,41 @@ function createGlowDots(canvas, config){
       i++;
     }
     return {cells,cols,rows};
+  }
+
+  // ----- image / svg mask (sampled per-cell; src is a small embedded raster) -----
+  function maskValueAt(px,py){
+    if(!maskData) return 1;
+    const data=maskData.data, w=maskData.w, h=maskData.h, hasAlpha=maskData.hasAlpha;
+    const fit=cfg.maskFit||'cover', sImg=w/h, sBox=(H>0?W/H:1);
+    let scale;
+    if(fit==='cover') scale = sBox>sImg ? W/w : H/h;
+    else scale = sBox>sImg ? H/h : W/w;
+    const dw=w*scale, dh=h*scale, offx=(W-dw)/2, offy=(H-dh)/2;
+    const ix=(px-offx)/scale, iy=(py-offy)/scale;
+    let base;
+    if(ix<0||iy<0||ix>=w||iy>=h) base=0;
+    else { const xi=Math.min(w-1,Math.max(0,ix|0)), yi=Math.min(h-1,Math.max(0,iy|0)), idx=(yi*w+xi)*4;
+      base = hasAlpha ? data[idx+3]/255 : (0.299*data[idx]+0.587*data[idx+1]+0.114*data[idx+2])/255; }
+    return cfg.maskInvert ? 1-base : base;
+  }
+  function assignMask(){ const on=!!maskData; for(const d of live.cells){ d.mask = on ? maskValueAt(d.x,d.y) : 1; } }
+  function loadMask(src){
+    maskSrcLoaded = src||null;
+    if(!src){ maskData=null; assignMask(); return; }
+    const img=new Image();
+    img.onload=function(){
+      if(maskSrcLoaded!==src) return;
+      const iw=img.width||300, ih=img.height||300, sc=Math.min(1,256/Math.max(iw,ih));
+      const sw=Math.max(1,Math.round(iw*sc)), sh=Math.max(1,Math.round(ih*sc));
+      const mc=document.createElement('canvas'); mc.width=sw; mc.height=sh;
+      const mg=mc.getContext('2d'); mg.clearRect(0,0,sw,sh); mg.drawImage(img,0,0,sw,sh);
+      let dat; try{ dat=mg.getImageData(0,0,sw,sh); }catch(e){ maskData=null; assignMask(); return; }
+      let hasAlpha=false; const A=dat.data; for(let q=3;q<A.length;q+=4){ if(A[q]<250){hasAlpha=true;break;} }
+      maskData={data:A,w:sw,h:sh,hasAlpha:hasAlpha}; assignMask();
+    };
+    img.onerror=function(){ if(maskSrcLoaded===src){ maskData=null; assignMask(); } };
+    img.src=src;
   }
 
   function pathShape(g,c){
@@ -445,6 +604,7 @@ function createGlowDots(canvas, config){
       case 'stars':{ const tw=0.5+0.5*Math.sin(ph*6.283*(0.6+d.rnd) + d.rnd*6.283); amt=Math.pow(tw,4)*(d.rnd>0.45?1:0.25)*mask; break; }
       case 'aura':{ const breath=0.55+0.45*Math.sin(ph*3.14); const sx=hover&&S.mouse.inside?S.mouse.x:cx, sy=hover&&S.mouse.inside?S.mouse.y:cy; amt=falloff(dist(d.x,d.y,sx,sy),R*breath); break; }
     }
+    if(c.maskMode==='source' && d.mask!=null) amt=Math.max(amt, d.mask);
     let b=idle+(1-idle)*Math.max(0,Math.min(1,amt));
     for(const rp of S.ripples){ const age=now-rp.t0, prog=age/D; if(prog>1)continue; const front=prog*R*1.6; const dd=dist(d.x,d.y,rp.x,rp.y); const r=ringProfile(c.anim,dd,front,prog,R,soft); b=Math.max(b, idle+(1-idle)*r); }
     return Math.min(1,b);
@@ -456,15 +616,20 @@ function createGlowDots(canvas, config){
     const gbase=rgbToHsl(...hexToRgb(c.grid||c.fill));
     const gcol='hsl('+gbase[0]+','+gbase[1]+'%,'+gbase[2]+'%)';
     const gl=c.glow/100, Sn=base[1], L=base[2];
-    const fA=c.fillA==null?1:c.fillA, gA=c.gridA==null?1:c.gridA, bgA=c.bgA==null?1:c.bgA;
+    const fA0=c.fillA==null?1:c.fillA, gA0=c.gridA==null?1:c.gridA, bgA=c.bgA==null?1:c.bgA;
     g.clearRect(0,0,W,H);
     if(S.opaque && bgA>0){ const bg=hexToRgb(c.bg||'#000000'); g.globalAlpha=bgA; g.shadowBlur=0; g.fillStyle='rgb('+bg[0]+','+bg[1]+','+bg[2]+')'; g.fillRect(0,0,W,H); }
     if(c.shape==='ascii'){ g.textAlign='center'; g.textBaseline='middle'; g.font=Math.max(8,Math.round(c.density*0.95))+'px ui-monospace,SFMono-Regular,Menlo,monospace'; }
+    g.shadowBlur=0;
+    const hue0=(c.hue===0), h0=((base[0])%360+360)%360, col0='hsl('+h0+','+Sn+'%,'+L+'%)';
+    const maskOn=(c.maskMode==='mask');
     for(const d of S.cells){
       const b=brightness(S,d,now);
-      let hueX=(d.x/W)*c.hue;
-      const h=((base[0]+hueX)%360+360)%360;
-      const col='hsl('+h+','+Sn+'%,'+L+'%)';
+      const mm=maskOn?(d.mask==null?1:d.mask):1;
+      const fA=fA0*mm, gA=gA0*mm;
+      let h, col;
+      if(hue0){ h=h0; col=col0; }
+      else { const hueX=(d.x/W)*c.hue; h=((base[0]+hueX)%360+360)%360; col='hsl('+h+','+Sn+'%,'+L+'%)'; }
       if(c.shape==='bayer'){
         const th=(BAYER[(d.row&3)*4+(d.col&3)]+0.5)/16;
         const m=(b-c.idle)/(1-c.idle);
@@ -507,11 +672,12 @@ function createGlowDots(canvas, config){
         g.globalAlpha=(0.22+b*0.5)*gA; g.fillStyle=gcol;
         pathShape(g,c); g.fill();
       }else{
-        if(gl>0.001){
+        const ga=Math.min(0.9,(0.22+b*0.78)*gl)*fA;
+        if(gl>0.001 && ga>0.03){
           const key=Math.round(h/6)+'|'+Math.round(Sn)+'|'+Math.round(L);
           const spr=tintGlow(key,col);
           const haloR=(c.blur*(0.6+(c.spread/100)*1.6)*b + c.blur*0.25)*gl + 3;
-          g.globalAlpha=Math.min(0.9,(0.22+b*0.78)*gl)*fA;
+          g.globalAlpha=ga;
           g.drawImage(spr,-haloR,-haloR,haloR*2,haloR*2);
         }
         g.globalAlpha=Math.min(1,0.30+b*0.70)*fA;
@@ -532,20 +698,34 @@ function createGlowDots(canvas, config){
     canvas.width=Math.max(1,Math.round(W*dpr)); canvas.height=Math.max(1,Math.round(H*dpr));
     ctx.setTransform(dpr,0,0,dpr,0,0);
     live=buildCells(W,H,cfg);
+    assignMask();
+    poke();
+  }
+
+  // keep a short draw window alive after interaction/changes so fades can finish
+  function poke(){ settleUntil=performance.now()+Math.max(600,cfg.duration)+350; }
+  // does the current config animate on its own (no pointer needed)?
+  function continuous(){
+    if(cfg.trigger==='always') return true;
+    if(cfg.anim==='aura') return true;
+    if(cfg.anim==='comet' && cfg.trigger!=='click') return true;
+    return false;
   }
 
   function frame(now){
     ripples=ripples.filter(r=>now-r.t0<Math.max(200,cfg.duration));
-    drawScene({ctx,W,H,cfg,cells:live.cells,cols:live.cols,rows:live.rows,mouse,ripples,opaque:false}, now);
+    if(continuous() || mouse.inside || ripples.length>0 || now<settleUntil){
+      drawScene({ctx,W,H,cfg,cells:live.cells,cols:live.cols,rows:live.rows,mouse,ripples,opaque:false}, now);
+    }
     if(running) raf=requestAnimationFrame(frame);
   }
 
   // ----- interaction -----
   function pos(e){const r=canvas.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top};}
-  function onMove(e){const p=pos(e);mouse.x=p.x;mouse.y=p.y;mouse.inside=true;
+  function onMove(e){const p=pos(e);mouse.x=p.x;mouse.y=p.y;mouse.inside=true;poke();
     if(CLICK_DRIVEN[cfg.anim]&&cfg.trigger==='hover'){const t=performance.now();if(t-lastSpawn>Math.max(200,cfg.duration)*0.35){ripples.push({x:p.x,y:p.y,t0:t});lastSpawn=t;}}}
-  function onLeave(){mouse.inside=false;mouse.x=-9999;mouse.y=-9999;}
-  function onDown(e){const p=pos(e);if(cfg.trigger==='click'||CLICK_DRIVEN[cfg.anim]){ripples.push({x:p.x,y:p.y,t0:performance.now()});}}
+  function onLeave(){mouse.inside=false;mouse.x=-9999;mouse.y=-9999;poke();}
+  function onDown(e){const p=pos(e);poke();if(cfg.trigger==='click'||CLICK_DRIVEN[cfg.anim]){ripples.push({x:p.x,y:p.y,t0:performance.now()});}}
   canvas.addEventListener('mousemove',onMove);
   canvas.addEventListener('mouseleave',onLeave);
   canvas.addEventListener('mousedown',onDown);
@@ -555,6 +735,7 @@ function createGlowDots(canvas, config){
   const ro=new ResizeObserver(resize); ro.observe(canvas);
 
   resize(); raf=requestAnimationFrame(frame);
+  loadMask(cfg.maskSrc);
   function mkTimer(){return setInterval(()=>{if(running&&cfg.trigger==='always'&&(cfg.anim==='ripple'||cfg.anim==='boom'||cfg.anim==='bloom'))ripples.push({x:W/2,y:H/2,t0:performance.now()});},Math.max(600,cfg.duration*0.7));}
   let autoTimer=mkTimer();
 
@@ -572,7 +753,7 @@ function createGlowDots(canvas, config){
   }
 
   return {
-    update(next){Object.assign(cfg,next);resize();clearInterval(autoTimer);autoTimer=mkTimer();},
+    update(next){const ms=next&&('maskSrc' in next)&&next.maskSrc!==maskSrcLoaded;Object.assign(cfg,next);resize();clearInterval(autoTimer);autoTimer=mkTimer();if(ms)loadMask(cfg.maskSrc);},
     config(){return Object.assign({},cfg);},
     previewSize(){return {w:W,h:H};},
     snapshotInto,
@@ -591,7 +772,8 @@ const DEFAULTS={
   shape:'star', density:15, size:20, points:4, depth:52, jitter:0,
   fill:'#5b8cff', grid:'#5b6472', fillA:1, gridA:1, bgA:1, glow:62, blur:22, spread:34, hue:0,
   anim:'glow', trigger:'hover', radius:200, duration:1100, softness:60,
-  scale:1, bg:'#0a0b0f', idle:0.10
+  scale:1, bg:'#0a0b0f', idle:0.10,
+  maskMode:'off', maskFit:'cover', maskInvert:false, maskSrc:null
 };
 let state=Object.assign({},DEFAULTS);
 const scene=document.getElementById('scene');
@@ -621,16 +803,17 @@ function paintRange(el){const min=+el.min||0,max=+el.max||100,p=max>min?((+el.va
 // segmented
 $$('[data-seg]').forEach(seg=>{
   const key=seg.dataset.seg;
+  if(key==='maskToggle'||key==='maskType')return;
   seg.querySelectorAll('button').forEach(b=>{
     b.addEventListener('click',()=>{
-      let v=b.dataset.v; if(key==='scale')v=+v;
+      let v=b.dataset.v; if(key==='scale')v=+v; else if(key==='maskInvert')v=(v==='true');
       apply({[key]:v}); paintSeg(seg,key);
       if(key==='trigger'||key==='anim')updateHint();
     });
   });
 });
-function paintSeg(seg,key){seg.querySelectorAll('button').forEach(b=>{const v=key==='scale'?+b.dataset.v:b.dataset.v;b.setAttribute('aria-pressed',v===state[key]);});}
-function paintAllSegs(){$$('[data-seg]').forEach(s=>paintSeg(s,s.dataset.seg));}
+function paintSeg(seg,key){seg.querySelectorAll('button').forEach(b=>{const v=key==='scale'?+b.dataset.v:key==='maskInvert'?(b.dataset.v==='true'):b.dataset.v;b.setAttribute('aria-pressed',v===state[key]);});}
+function paintAllSegs(){$$('[data-seg]').forEach(s=>{const k=s.dataset.seg;if(k==='maskToggle'||k==='maskType')return;paintSeg(s,k);});}
 
 // appearance — studio theme only, NOT part of the exported effect
 let appearance='dark';
@@ -684,7 +867,8 @@ function updateHint(){
 $('#reset').addEventListener('click',()=>{
   state=Object.assign({},DEFAULTS); engine.update(state);
   ['density','size','points','depth','jitter','glow','blur','spread','hue','radius','duration','softness'].forEach(id=>{const el=document.getElementById(id);el.value=state[id];setVal(id);paintRange(el);});
-  paintAllSegs();paintColors();syncStarRows();updateHint();
+  lastMaskType='mask';
+  paintAllSegs();paintColors();syncStarRows();updateHint();paintMask();paintMaskUI();
 });
 
 /* ---------- EXPORT ---------- */
@@ -716,7 +900,72 @@ async function copy(text,label){try{await navigator.clipboard.writeText(text);to
 
 $('#copyEmbed').addEventListener('click',()=>copy(buildEmbed(),'Embed'));
 
+// ----- mask: drag & drop + upload (auto-downscaled, embeds as small raster), change, remove -----
+const maskFile=$('#maskFile'), maskDrop=$('#maskDrop'), maskSrcRow=$('#maskSrcRow');
+maskDrop.addEventListener('click',()=>{ if(maskSrcRow.classList.contains('has-image'))return; maskFile.click(); });
+$('#maskChange').addEventListener('click',()=>maskFile.click());
+$('#maskThumb').addEventListener('click',()=>maskFile.click());
+maskFile.addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(f)readMask(f);maskFile.value='';});
+['dragenter','dragover'].forEach(ev=>maskSrcRow.addEventListener(ev,e=>{e.preventDefault();maskSrcRow.classList.add('drag');}));
+['dragleave','dragend'].forEach(ev=>maskSrcRow.addEventListener(ev,e=>{e.preventDefault();maskSrcRow.classList.remove('drag');}));
+maskSrcRow.addEventListener('drop',e=>{
+  e.preventDefault(); maskSrcRow.classList.remove('drag');
+  const f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];
+  if(!f)return;
+  if(!/^image\//.test(f.type)&&!/\.svg$/i.test(f.name)){ toast('Harap jatuhkan file gambar'); return; }
+  readMask(f);
+});
+function readMask(file){
+  const fr=new FileReader();
+  fr.onload=()=>{
+    const img=new Image();
+    img.onload=()=>{
+      const iw=img.width||300, ih=img.height||300, sc=Math.min(1,240/Math.max(iw,ih));
+      const sw=Math.max(1,Math.round(iw*sc)), sh=Math.max(1,Math.round(ih*sc));
+      const cnv=document.createElement('canvas'); cnv.width=sw; cnv.height=sh;
+      const g=cnv.getContext('2d'); g.clearRect(0,0,sw,sh); g.drawImage(img,0,0,sw,sh);
+      let durl; try{ durl=cnv.toDataURL('image/png'); }catch(err){ toast('Gagal memproses gambar'); return; }
+      state.maskSrc=durl;
+      const mode = state.maskMode!=='off' ? state.maskMode : lastMaskType;
+      apply({maskSrc:durl, maskMode:mode});
+      paintMask(); paintMaskUI();
+      toast('Mask applied');
+    };
+    img.onerror=()=>toast('File gambar tidak valid');
+    img.src=fr.result;
+  };
+  fr.onerror=()=>toast('Gagal membaca file');
+  fr.readAsDataURL(file);
+}
+$('#maskRemove').addEventListener('click',e=>{
+  e.stopPropagation();
+  state.maskSrc=null;
+  apply({maskSrc:null, maskMode:'off'});
+  paintMask(); paintMaskUI();
+});
+function paintMask(){
+  const img=$('#maskImg');
+  if(state.maskSrc){ img.src=state.maskSrc; maskSrcRow.classList.add('has-image'); }
+  else { img.removeAttribute('src'); maskSrcRow.classList.remove('has-image'); }
+}
+
+// ----- mask: On/Off toggle + Type (Mask/Source). Pure UI -> maps to engine maskMode. -----
+let lastMaskType = (state.maskMode!=='off') ? state.maskMode : 'mask';
+function maskOn(){ return state.maskMode!=='off'; }
+function syncMaskRows(){ const on=maskOn(); $$('[data-maskon]').forEach(r=>{ r.style.display = on?'':'none'; }); }
+function paintMaskUI(){
+  const on=maskOn();
+  $$('[data-seg="maskToggle"] button').forEach(b=>b.setAttribute('aria-pressed', String((b.dataset.v==='on')===on)));
+  const t = on ? state.maskMode : lastMaskType;
+  $$('[data-seg="maskType"] button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.v===t)));
+  syncMaskRows();
+}
+function setMaskToggle(on){ apply({maskMode: on?lastMaskType:'off'}); paintMaskUI(); }
+function setMaskType(t){ lastMaskType=t; if(maskOn()) apply({maskMode:t}); paintMaskUI(); }
+$$('[data-seg="maskToggle"] button').forEach(b=>b.addEventListener('click',()=>setMaskToggle(b.dataset.v==='on')));
+$$('[data-seg="maskType"] button').forEach(b=>b.addEventListener('click',()=>setMaskType(b.dataset.v)));
+
 
 // init paints
-paintAllSegs();paintColors();syncStarRows();updateHint();
+paintAllSegs();paintColors();syncStarRows();updateHint();paintMask();paintMaskUI();
 </script>
